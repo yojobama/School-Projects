@@ -2,6 +2,7 @@ package com.example.pizzaorder;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -11,6 +12,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
+
+    RadioGroup rgSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +26,21 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        rgSize = findViewById(R.id.rgSize);
+
         findViewById(R.id.btnOrder).setOnClickListener(v -> {
-            Toast.makeText(this, "Order is on the way!", Toast.LENGTH_SHORT).show();
+            int checkedId = rgSize.getCheckedRadioButtonId();
+
+            String size;
+            if (checkedId == R.id.rbSmall) {
+                size = "small";
+            } else if (checkedId == R.id.rbMedium) {
+                size = "medium";
+            } else {
+                size = "family";
+            }
+
+            Toast.makeText(this, "Chose " + size, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, SummaryActivity.class));
         });
     }
