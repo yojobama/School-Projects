@@ -40,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
                 size = "family";
             }
 
-            Toast.makeText(this, "Chose " + size, Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, SummaryActivity.class));
+            startActivity(new Intent(this, SummaryActivity.class).putExtra("size", size));
         });
     }
 }
