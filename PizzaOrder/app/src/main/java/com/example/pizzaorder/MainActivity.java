@@ -44,11 +44,16 @@ public class MainActivity extends AppCompatActivity {
             checkedId = rgCrust.getCheckedRadioButtonId();
 
             String crust;
+            if (checkedId == -1) {
+                Toast.makeText(MainActivity.this, "בחרו סוג בצק לפני ההזמנה", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (checkedId == R.id.rbThin) {
                 crust = "thin";
             } else {
                 crust = "thick";
             }
+
 
             startActivity(new Intent(this, SummaryActivity.class).putExtra("size", size).putExtra("crust", crust));
         });
