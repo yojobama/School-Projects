@@ -24,7 +24,8 @@ public class SummaryActivity extends AppCompatActivity {
 
         TextView tvSummary = findViewById(R.id.tvSummary);
         String size = getIntent().getStringExtra("size");
-        tvSummary.setText("Your order: " + size + " pizza.");
+        String crust = getIntent().getStringExtra("crust");
+        tvSummary.setText("Your order: " + size + " pizza with " + crust + " crust.");
 
         findViewById(R.id.btnBack).setOnClickListener(v -> {
             finish();

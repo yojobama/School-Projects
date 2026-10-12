@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    RadioGroup rgSize;
+    RadioGroup rgSize, rgCrust;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         rgSize = findViewById(R.id.rgSize);
+        rgCrust = findViewById(R.id.rgCrust);
 
         findViewById(R.id.btnOrder).setOnClickListener(v -> {
             int checkedId = rgSize.getCheckedRadioButtonId();
@@ -40,7 +41,16 @@ public class MainActivity extends AppCompatActivity {
                 size = "family";
             }
 
-            startActivity(new Intent(this, SummaryActivity.class).putExtra("size", size));
+            checkedId = rgCrust.getCheckedRadioButtonId();
+
+            String crust;
+            if (checkedId == R.id.rbThin) {
+                crust = "thin";
+            } else {
+                crust = "thick";
+            }
+
+            startActivity(new Intent(this, SummaryActivity.class).putExtra("size", size).putExtra("crust", crust));
         });
     }
 }
