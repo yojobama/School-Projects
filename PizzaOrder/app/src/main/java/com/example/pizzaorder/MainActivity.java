@@ -6,6 +6,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -31,14 +32,18 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btnOrder).setOnClickListener(v -> {
             int checkedId = rgSize.getCheckedRadioButtonId();
+            int price = 0;
 
             String size;
             if (checkedId == R.id.rbSmall) {
                 size = "small";
+                price += 25;
             } else if (checkedId == R.id.rbMedium) {
                 size = "medium";
+                price += 35;
             } else {
                 size = "family";
+                price += 45;
             }
 
             checkedId = rgCrust.getCheckedRadioButtonId();
@@ -52,10 +57,20 @@ public class MainActivity extends AppCompatActivity {
                 crust = "thin";
             } else {
                 crust = "thick";
+                price += 5;
             }
 
+            Intent intent = new Intent(MainActivity.this, SummaryActivity.class).putExtra("size", size).putExtra("crust", crust).putExtra("price", price);
 
-            startActivity(new Intent(this, SummaryActivity.class).putExtra("size", size).putExtra("crust", crust));
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Order Confirmation");
+            builder.setMessage("Order a " + size + " pizza with " + crust + " crust?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                Toast.makeText(MainActivity.this, "Order placed!", Toast.LENGTH_SHORT).show();
+                startActivity(intent);
+            });
+            builder.setNegativeButton("No", null);
+            builder.show();
         });
     }
 }

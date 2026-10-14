@@ -1,5 +1,6 @@
 package com.example.pizzaorder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -25,10 +26,15 @@ public class SummaryActivity extends AppCompatActivity {
         TextView tvSummary = findViewById(R.id.tvSummary);
         String size = getIntent().getStringExtra("size");
         String crust = getIntent().getStringExtra("crust");
-        tvSummary.setText("Your order: " + size + " pizza with " + crust + " crust.");
+        String price = String.valueOf(getIntent().getIntExtra("price", 0));
+        tvSummary.setText("Your order: " + size + " pizza with " + crust + " crust. Price: $" + price);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> {
             finish();
+        });
+
+        findViewById(R.id.btnPay).setOnClickListener(v -> {
+            startActivity(new Intent(SummaryActivity.this, PaymentActivity.class).putExtra("size", size).putExtra("crust", crust));
         });
     }
 }
