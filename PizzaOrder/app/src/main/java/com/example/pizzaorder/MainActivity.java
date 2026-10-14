@@ -72,5 +72,18 @@ public class MainActivity extends AppCompatActivity {
             builder.setNegativeButton("No", null);
             builder.show();
         });
+
+        findViewById(R.id.btnClear).setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Clear Order");
+            builder.setMessage("Are you sure you want to clear your order?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                rgSize.check(R.id.rbMedium);
+                rgCrust.clearCheck();
+                Toast.makeText(MainActivity.this, "Order cleared!", Toast.LENGTH_SHORT).show();
+            });
+            builder.setNegativeButton("No", null);
+            builder.show();
+        });
     }
 }
