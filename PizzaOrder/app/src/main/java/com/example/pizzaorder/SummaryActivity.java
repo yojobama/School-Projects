@@ -24,9 +24,10 @@ public class SummaryActivity extends AppCompatActivity {
         });
 
         TextView tvSummary = findViewById(R.id.tvSummary);
-        String size = getIntent().getStringExtra("size");
-        String crust = getIntent().getStringExtra("crust");
-        String price = String.valueOf(getIntent().getIntExtra("price", 0));
+        Order order = (Order) getIntent().getParcelableExtra("order");
+        String size = order.getSize();
+        String crust = order.getCrust();
+        String price = String.valueOf(order.getPrice());
         tvSummary.setText("Your order: " + size + " pizza with " + crust + " crust. Price: $" + price);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> {
@@ -34,7 +35,7 @@ public class SummaryActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btnPay).setOnClickListener(v -> {
-            startActivity(new Intent(SummaryActivity.this, PaymentActivity.class).putExtra("size", size).putExtra("crust", crust));
+            startActivity(new Intent(SummaryActivity.this, PaymentActivity.class).putExtra("order", order));
         });
     }
 }

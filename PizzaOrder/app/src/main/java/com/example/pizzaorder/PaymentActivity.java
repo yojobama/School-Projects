@@ -29,8 +29,9 @@ public class PaymentActivity extends AppCompatActivity {
         rgMethod = findViewById(R.id.rgMethod);
 
         TextView tvSummary = findViewById(R.id.tvSummary);
-        String size = getIntent().getStringExtra("size");
-        String crust = getIntent().getStringExtra("crust");
+        Order order = (Order) getIntent().getParcelableExtra("order");
+        String size = order.getSize();
+        String crust = order.getCrust();
         tvSummary.setText("Your order: " + size + " pizza with " + crust + " crust");
 
 

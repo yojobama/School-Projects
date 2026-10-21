@@ -2,6 +2,7 @@ package com.example.pizzaorder;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     RadioGroup rgSize, rgCrust;
+    String crust = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,39 +30,40 @@ public class MainActivity extends AppCompatActivity {
         });
 
         rgSize = findViewById(R.id.rgSize);
-        rgCrust = findViewById(R.id.rgCrust);
+        Button btnChooseCrust = findViewById(R.id.btnChooseCrust);
+        btnChooseCrust.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Choose Crust");
+            builder.setPositiveButton("Thin", (dialog, which) -> {
+                btnChooseCrust.setText("Thin");
+                crust = "thin";
+            });
+            builder.setNegativeButton("Thick", (dialog, which) -> {
+                btnChooseCrust.setText("Thick");
+                crust = "thick";
+            });
+            builder.show();
+        });
 
         findViewById(R.id.btnOrder).setOnClickListener(v -> {
             int checkedId = rgSize.getCheckedRadioButtonId();
-            int price = 0;
 
             String size;
             if (checkedId == R.id.rbSmall) {
                 size = "small";
-                price += 25;
             } else if (checkedId == R.id.rbMedium) {
                 size = "medium";
-                price += 35;
             } else {
                 size = "family";
-                price += 45;
             }
 
-            checkedId = rgCrust.getCheckedRadioButtonId();
-
-            String crust;
-            if (checkedId == -1) {
+            if (crust == null) {
                 Toast.makeText(MainActivity.this, "בחרו סוג בצק לפני ההזמנה", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (checkedId == R.id.rbThin) {
-                crust = "thin";
-            } else {
-                crust = "thick";
-                price += 5;
-            }
 
-            Intent intent = new Intent(MainActivity.this, SummaryActivity.class).putExtra("size", size).putExtra("crust", crust).putExtra("price", price);
+            Order order = new Order(size, crust);
+            Intent intent = new Intent(MainActivity.this, SummaryActivity.class).putExtra("order", order);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Order Confirmation");

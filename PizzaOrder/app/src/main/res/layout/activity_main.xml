@@ -51,39 +51,20 @@
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/tvCrustLabel"
+    <Button
+        android:id="@+id/btnChooseCrust"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Choose crust:"
-        android:textSize="18sp" />
-
-    <RadioGroup
-        android:id="@+id/rgCrust"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RadioButton
-            android:id="@+id/rbThin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="thin"/>
-
-        <RadioButton
-            android:id="@+id/rbThick"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="thick" />
-
-    </RadioGroup>
+        android:text="Choose crust"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="8dp"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp">
 
         <Button
             android:id="@+id/btnOrder"
