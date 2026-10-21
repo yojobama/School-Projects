@@ -55,7 +55,7 @@
         android:id="@+id/btnChooseCrust"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose crust"
+        android:text="Choose Crust"
         android:layout_gravity="center_horizontal"
         android:layout_margin="8dp"/>
 

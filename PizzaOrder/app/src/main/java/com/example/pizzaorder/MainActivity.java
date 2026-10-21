@@ -16,7 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     RadioGroup rgSize, rgCrust;
-    String crust = null;
+    String[] crusts = {"Thin", "Thick"};
+    int checkedCrustIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +35,15 @@ public class MainActivity extends AppCompatActivity {
         btnChooseCrust.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Choose Crust");
-            builder.setPositiveButton("Thin", (dialog, which) -> {
-                btnChooseCrust.setText("Thin");
-                crust = "thin";
+            builder.setSingleChoiceItems(crusts, checkedCrustIndex, (dialog, which) -> {
+                checkedCrustIndex = which;
+                if (which == 0) {
+                    btnChooseCrust.setText(crusts[0]);
+                } else {
+                    btnChooseCrust.setText(crusts[1]);
+                }
             });
-            builder.setNegativeButton("Thick", (dialog, which) -> {
-                btnChooseCrust.setText("Thick");
-                crust = "thick";
-            });
+            builder.setPositiveButton("OK", null);
             builder.show();
         });
 
@@ -57,10 +59,11 @@ public class MainActivity extends AppCompatActivity {
                 size = "family";
             }
 
-            if (crust == null) {
+            if (checkedCrustIndex == -1) {
                 Toast.makeText(MainActivity.this, "בחרו סוג בצק לפני ההזמנה", Toast.LENGTH_SHORT).show();
                 return;
             }
+            String crust = crusts[checkedCrustIndex].toLowerCase();
 
             Order order = new Order(size, crust);
             Intent intent = new Intent(MainActivity.this, SummaryActivity.class).putExtra("order", order);
@@ -82,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
             builder.setMessage("Are you sure you want to clear your order?");
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 rgSize.check(R.id.rbMedium);
-                rgCrust.clearCheck();
+                checkedCrustIndex = -1;
+                btnChooseCrust.setText("Choose Crust");
                 Toast.makeText(MainActivity.this, "Order cleared!", Toast.LENGTH_SHORT).show();
             });
             builder.setNegativeButton("No", null);
