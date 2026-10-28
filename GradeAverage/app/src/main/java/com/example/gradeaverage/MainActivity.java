@@ -68,15 +68,18 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            int sumBonus = gradeWithBonus(g1, u1) * u1 + gradeWithBonus(g2, u2) * u2 + gradeWithBonus(g3, u3) * u3;
             int sum = g1 * u1 + g2 * u2 + g3 * u3;
             int totalUnits = u1 + u2 + u3;
             double average = (double) sum / totalUnits;
+            double averageWithBonus = (double) sumBonus / totalUnits;
 
             m_TextViewResult.setText("Bagroot Average: " + String.format("%.1f", average));
 
             startActivity(new Intent(this, CertificateActivity.class)
                 .putExtra("name", name)
-                .putExtra("average", average));
+                .putExtra("average", average)
+                .putExtra("averageWithBonus", averageWithBonus));
         });
 
         m_ButtonClear.setOnClickListener(v -> {
@@ -91,6 +94,16 @@ public class MainActivity extends AppCompatActivity {
             m_TextViewResult.setText("Average Will Appear Here");
             m_EditTextGrade1.requestFocus();
         });
+    }
+
+    int gradeWithBonus(int grade, int units) {
+        if (units == 5) {
+            return grade + 20;
+        } else if (units == 4) {
+            return grade + 10;
+        } else {
+            return grade;
+        }
     }
 
     int readNumber(EditText editText, int min, int max) {
