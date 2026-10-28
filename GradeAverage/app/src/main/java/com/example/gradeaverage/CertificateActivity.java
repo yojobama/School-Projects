@@ -25,10 +25,17 @@ public class CertificateActivity extends AppCompatActivity {
         });
 
         m_TextViewResults = findViewById(R.id.tvResult);
+
         String name = getIntent().getStringExtra("name");
         double average = getIntent().getDoubleExtra("average", -1.0);
         double averageWithBonus = getIntent().getDoubleExtra("averageWithBonus", -1.0);
+        boolean includeSubject4 = getIntent().getBooleanExtra("includeSubject4", false);
+        String subject4 = getIntent().getStringExtra("subject4");
+
         String resultText = name + ": Average=" + String.format("%.1f", average) + ", Average With Bonus=" + String.format("%.1f", averageWithBonus);
+        if (includeSubject4) {
+            resultText += ", Also Includes: " + subject4;
+        }
         m_TextViewResults.setText(resultText);
     }
 }

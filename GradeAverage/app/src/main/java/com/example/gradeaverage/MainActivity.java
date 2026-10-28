@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button m_ButtonCalculate, m_ButtonClear;
     TextView m_TextViewResult;
-    EditText m_EditTextName, m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3;
+    EditText m_EditTextName, m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextGrade4, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3, m_EditTextUnits4, m_EditTextSubject4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +40,14 @@ public class MainActivity extends AppCompatActivity {
         m_EditTextGrade1 = findViewById(R.id.etGrade1);
         m_EditTextGrade2 = findViewById(R.id.etGrade2);
         m_EditTextGrade3 = findViewById(R.id.etGrade3);
+        m_EditTextGrade4 = findViewById(R.id.etGrade4);
 
         m_EditTextUnits1 = findViewById(R.id.etUnits1);
         m_EditTextUnits2 = findViewById(R.id.etUnits2);
         m_EditTextUnits3 = findViewById(R.id.etUnits3);
+        m_EditTextUnits4 = findViewById(R.id.etUnits4);
+
+        m_EditTextSubject4 = findViewById(R.id.etSubject4);
 
         m_ButtonCalculate.setOnClickListener(v -> {
             int g1 = readNumber(m_EditTextGrade1, 0, 100);
@@ -61,6 +65,29 @@ public class MainActivity extends AppCompatActivity {
             int u3 = readNumber(m_EditTextUnits3, 1, 5);
             if (u3 == -1) return;
 
+
+
+            int g4 = 0, u4 = 0;
+
+            String subject4 = m_EditTextSubject4.getText().toString();
+
+            boolean includeSubject4 = !subject4.isEmpty() ||
+                    !m_EditTextGrade4.getText().toString().isEmpty() ||
+                    !m_EditTextUnits4.getText().toString().isEmpty();
+
+            if (includeSubject4) {
+                if (subject4.isEmpty()) {
+                    m_EditTextSubject4.setError("Fill In A Bloody Subject Name!!!");
+                    m_EditTextSubject4.requestFocus();
+                    return;
+                }
+
+                g4 = readNumber(m_EditTextGrade4, 0, 100);
+                if (g4 == -1) return;
+                u4 = readNumber(m_EditTextUnits4, 1, 5);
+                if (u4 == -1) return;
+            }
+
             String name = m_EditTextName.getText().toString();
             if (name.isEmpty()) {
                 m_EditTextName.setError("Fill In A Bloody Name!!!");
@@ -68,9 +95,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            int sumBonus = gradeWithBonus(g1, u1) * u1 + gradeWithBonus(g2, u2) * u2 + gradeWithBonus(g3, u3) * u3;
-            int sum = g1 * u1 + g2 * u2 + g3 * u3;
-            int totalUnits = u1 + u2 + u3;
+            int sumBonus = gradeWithBonus(g1, u1) * u1 + gradeWithBonus(g2, u2) * u2 + gradeWithBonus(g3, u3) * u3 + gradeWithBonus(g4, u4) * u4;
+            int sum = g1 * u1 + g2 * u2 + g3 * u3 + g4 * u4;
+            int totalUnits = u1 + u2 + u3 + u4;
             double average = (double) sum / totalUnits;
             double averageWithBonus = (double) sumBonus / totalUnits;
 
@@ -79,7 +106,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, CertificateActivity.class)
                 .putExtra("name", name)
                 .putExtra("average", average)
-                .putExtra("averageWithBonus", averageWithBonus));
+                .putExtra("averageWithBonus", averageWithBonus)
+                .putExtra("subject4", subject4)
+                .putExtra("includeSubject4", includeSubject4));
         });
 
         m_ButtonClear.setOnClickListener(v -> {
