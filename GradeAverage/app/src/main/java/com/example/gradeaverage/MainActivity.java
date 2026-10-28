@@ -1,6 +1,8 @@
 package com.example.gradeaverage;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button m_ButtonCalculate, m_ButtonClear;
     TextView m_TextViewResult;
-    EditText m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3;
+    EditText m_EditTextName, m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         m_TextViewResult = findViewById(R.id.tvAverage);
 
+        m_EditTextName = findViewById(R.id.etName);
         m_EditTextGrade1 = findViewById(R.id.etGrade1);
         m_EditTextGrade2 = findViewById(R.id.etGrade2);
         m_EditTextGrade3 = findViewById(R.id.etGrade3);
@@ -58,11 +61,22 @@ public class MainActivity extends AppCompatActivity {
             int u3 = readNumber(m_EditTextUnits3, 1, 5);
             if (u3 == -1) return;
 
+            String name = m_EditTextName.getText().toString();
+            if (name.isEmpty()) {
+                m_EditTextName.setError("Fill In A Bloody Name!!!");
+                m_EditTextName.requestFocus();
+                return;
+            }
+
             int sum = g1 * u1 + g2 * u2 + g3 * u3;
             int totalUnits = u1 + u2 + u3;
             double average = (double) sum / totalUnits;
 
             m_TextViewResult.setText("Bagroot Average: " + String.format("%.1f", average));
+
+            startActivity(new Intent(this, CertificateActivity.class)
+                .putExtra("name", name)
+                .putExtra("average", average));
         });
 
         m_ButtonClear.setOnClickListener(v -> {
@@ -72,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             m_EditTextUnits1.setText("");
             m_EditTextUnits2.setText("");
             m_EditTextUnits3.setText("");
+            m_EditTextName.setText("");
 
             m_TextViewResult.setText("Average Will Appear Here");
             m_EditTextGrade1.requestFocus();
