@@ -1,106 +1,22 @@
 package com.example.gradeaverage;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.widget.TextViewKt;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
-class Subject {
-    EditText m_Units, m_Grade, m_SubjectName;
-
-    EditText createEditText(Context context, int weight, int inputType) {
-        EditText editText = new EditText(context);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                weight
-        );
-        params.gravity = Gravity.CENTER_HORIZONTAL;
-        editText.setLayoutParams(params);
-        editText.setInputType(inputType);
-        return editText;
-    }
-
-    public Subject(Context context) {
-        // TODO: check maxima handling in the main code
-        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
-        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
-        m_SubjectName = createEditText(context, 2, InputType.TYPE_CLASS_TEXT);
-    }
-
-    void addToLayout(LinearLayout layout) {
-        LinearLayout subjectLayout = new LinearLayout(layout.getContext());
-        subjectLayout.addView(m_SubjectName);
-        subjectLayout.addView(m_Units);
-        subjectLayout.addView(m_Grade);
-        layout.addView(subjectLayout);
-    }
-
-    String getSubject() {
-        return m_SubjectName.getText().toString();
-    }
-
-    int getGrade() {
-        String text = m_Grade.getText().toString();
-        if (text.isEmpty()) {
-            m_Grade.setError("Fill In A Bloody Number!!!");
-            m_Grade.requestFocus();
-            return -1;
-        }
-
-        int grade = Integer.parseInt(text);
-
-        if (grade < 0 || grade > 100) {
-            m_Grade.setError("Has To Be Between " + 0 + " And " + 100);
-            m_Grade.requestFocus();
-            return -1;
-        }
-
-        return grade;
-    }
-
-    int getUnits() {
-        String text = m_Grade.getText().toString();
-        if (text.isEmpty()) {
-            m_Units.setError("Fill In A Bloody Number!!!");
-            m_Units.requestFocus();
-            return -1;
-        }
-
-        int units = Integer.parseInt(text);
-
-        if (units < 1 || units > 5) {
-            m_Units.setError("Has To Be Between " + 1 + " And " + 5);
-            m_Units.requestFocus();
-            return -1;
-        }
-
-        return units;
-    }
-}
 
 public class MainActivity extends AppCompatActivity {
 
@@ -259,6 +175,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return editText;
+    }
+
+    int calculateAverageSubjects() {
+        int sumGradeWithBonus = 0;
+        int sumUnits = 0;
+
+        for (Subject subject : m_SubjectsList) {
+            int grade = subject.getGrade();
+            int units = subject.getUnits();
+
+            if (grade == -1 || units == -1) return -1;
+
+            sumGradeWithBonus += gradeWithBonus(grade, units);
+
+            sumUnits += units;
+        }
+
+        return sumGradeWithBonus / sumUnits;
     }
 
     int calculateAverage() {
