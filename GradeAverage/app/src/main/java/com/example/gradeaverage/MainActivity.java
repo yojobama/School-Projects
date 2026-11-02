@@ -1,12 +1,15 @@
 package com.example.gradeaverage;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -21,12 +24,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.TextViewKt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 class Subject {
-    EditText m_Units, m_Grade;
+    EditText m_Units, m_Grade, m_SubjectName;
 
-    EditText createEditText(Activity parentActivity, int weight) {
-        EditText editText = new EditText(parentActivity);
+    EditText createEditText(Context context, int weight, int inputType) {
+        EditText editText = new EditText(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -34,41 +40,76 @@ class Subject {
         );
         params.gravity = Gravity.CENTER_HORIZONTAL;
         editText.setLayoutParams(params);
+        editText.setInputType(inputType);
         return editText;
     }
 
-    TextView createTextView(Activity parentActivity, int weight, String text) {
-        TextView textView = new TextView(parentActivity);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                weight
-        );
-        params.gravity = Gravity.CENTER_HORIZONTAL;
-        textView.setLayoutParams(params);
-        textView.setText(text);
-        return textView;
-    }
-
-    public Subject(Activity parentActivity) {
+    public Subject(Context context) {
         // TODO: check maxima handling in the main code
-        m_Units = createEditText(parentActivity, 1);
-        m_Grade = createEditText(parentActivity, 1);
+        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
+        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
+        m_SubjectName = createEditText(context, 2, InputType.TYPE_CLASS_TEXT);
     }
 
     void addToLayout(LinearLayout layout) {
-        layout.addView(m_Units);
-        layout.addView(m_Grade);
+        LinearLayout subjectLayout = new LinearLayout(layout.getContext());
+        subjectLayout.addView(m_SubjectName);
+        subjectLayout.addView(m_Units);
+        subjectLayout.addView(m_Grade);
+        layout.addView(subjectLayout);
+    }
+
+    String getSubject() {
+        return m_SubjectName.getText().toString();
+    }
+
+    int getGrade() {
+        String text = m_Grade.getText().toString();
+        if (text.isEmpty()) {
+            m_Grade.setError("Fill In A Bloody Number!!!");
+            m_Grade.requestFocus();
+            return -1;
+        }
+
+        int grade = Integer.parseInt(text);
+
+        if (grade < 0 || grade > 100) {
+            m_Grade.setError("Has To Be Between " + 0 + " And " + 100);
+            m_Grade.requestFocus();
+            return -1;
+        }
+
+        return grade;
+    }
+
+    int getUnits() {
+        String text = m_Grade.getText().toString();
+        if (text.isEmpty()) {
+            m_Units.setError("Fill In A Bloody Number!!!");
+            m_Units.requestFocus();
+            return -1;
+        }
+
+        int units = Integer.parseInt(text);
+
+        if (units < 1 || units > 5) {
+            m_Units.setError("Has To Be Between " + 1 + " And " + 5);
+            m_Units.requestFocus();
+            return -1;
+        }
+
+        return units;
     }
 }
 
 public class MainActivity extends AppCompatActivity {
 
-    Button m_ButtonCalculate, m_ButtonClear;
+    Button m_ButtonCalculate, m_ButtonClear, m_AddSubject;
     TextView m_TextViewResult;
     EditText m_EditTextName, m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextGrade4, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3, m_EditTextUnits4, m_EditTextSubject4;
 
-    TextWatcher watcher;
+    List<Subject> m_SubjectsList = new ArrayList<>();
+    LinearLayout m_SubjectsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +122,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        m_SubjectsLayout = findViewById(R.id.subjectsLayout);
+
         m_ButtonCalculate = findViewById(R.id.btnCalc);
         m_ButtonClear = findViewById(R.id.btnClear);
+        m_AddSubject = findViewById(R.id.btnAddSubject);
 
         m_TextViewResult = findViewById(R.id.tvAverage);
 
@@ -99,6 +143,12 @@ public class MainActivity extends AppCompatActivity {
         m_EditTextUnits4 = createEditText(R.id.etUnits4);
 
         m_EditTextSubject4 = findViewById(R.id.etSubject4);
+
+        m_AddSubject.setOnClickListener(v -> {
+            Subject subject = new Subject(this);
+            m_SubjectsList.add(subject);
+            subject.addToLayout(m_SubjectsLayout);
+        });
 
         m_ButtonCalculate.setOnClickListener(v -> {
             int g1 = readNumber(m_EditTextGrade1, 0, 100);
