@@ -22,10 +22,17 @@ public class MainActivity extends AppCompatActivity {
 
     Button m_ButtonCalculate, m_ButtonClear, m_AddSubject;
     TextView m_TextViewResult;
-    EditText m_EditTextName, m_EditTextGrade1, m_EditTextGrade2, m_EditTextGrade3, m_EditTextGrade4, m_EditTextUnits1, m_EditTextUnits2, m_EditTextUnits3, m_EditTextUnits4, m_EditTextSubject4;
+    EditText m_EditTextName;
 
     List<Subject> m_SubjectsList = new ArrayList<>();
     LinearLayout m_SubjectsLayout;
+
+    Subject[] m_BaseSubjects = {
+            new Subject(this, "English"),
+            new Subject(this, "Maths"),
+            new Subject(this, "CS"),
+            new Subject(this)
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
         m_SubjectsLayout = findViewById(R.id.subjectsLayout);
 
+        for (Subject subject : m_BaseSubjects) {
+            m_SubjectsList.add(subject);
+            subject.addToLayout(m_SubjectsLayout);
+        }
+
         m_ButtonCalculate = findViewById(R.id.btnCalc);
         m_ButtonClear = findViewById(R.id.btnClear);
         m_AddSubject = findViewById(R.id.btnAddSubject);
@@ -48,18 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
         m_EditTextName = findViewById(R.id.etName);
 
-        m_EditTextGrade1 = createEditText(R.id.etGrade1);
-        m_EditTextGrade2 = createEditText(R.id.etGrade2);
-        m_EditTextGrade3 = createEditText(R.id.etGrade3);
-        m_EditTextGrade4 = createEditText(R.id.etGrade4);
-
-        m_EditTextUnits1 = createEditText(R.id.etUnits1);
-        m_EditTextUnits2 = createEditText(R.id.etUnits2);
-        m_EditTextUnits3 = createEditText(R.id.etUnits3);
-        m_EditTextUnits4 = createEditText(R.id.etUnits4);
-
-        m_EditTextSubject4 = findViewById(R.id.etSubject4);
-
         m_AddSubject.setOnClickListener(v -> {
             Subject subject = new Subject(this);
             m_SubjectsList.add(subject);
@@ -67,44 +67,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_ButtonCalculate.setOnClickListener(v -> {
-            int g1 = readNumber(m_EditTextGrade1, 0, 100);
-            if (g1 == -1) return;
-            int u1 = readNumber(m_EditTextUnits1, 1, 5);
-            if (u1 == -1) return;
-
-            int g2 = readNumber(m_EditTextGrade2, 0, 100);
-            if (g2 == -1) return;
-            int u2 = readNumber(m_EditTextUnits2, 1, 5);
-            if (u2 == -1) return;
-
-            int g3 = readNumber(m_EditTextGrade3, 0, 100);
-            if (g3 == -1) return;
-            int u3 = readNumber(m_EditTextUnits3, 1, 5);
-            if (u3 == -1) return;
-
-
-
-            int g4 = 0, u4 = 0;
-
-            String subject4 = m_EditTextSubject4.getText().toString();
-
-            boolean includeSubject4 = !subject4.isEmpty() ||
-                    !m_EditTextGrade4.getText().toString().isEmpty() ||
-                    !m_EditTextUnits4.getText().toString().isEmpty();
-
-            if (includeSubject4) {
-                if (subject4.isEmpty()) {
-                    m_EditTextSubject4.setError("Fill In A Bloody Subject Name!!!");
-                    m_EditTextSubject4.requestFocus();
-                    return;
-                }
-
-                g4 = readNumber(m_EditTextGrade4, 0, 100);
-                if (g4 == -1) return;
-                u4 = readNumber(m_EditTextUnits4, 1, 5);
-                if (u4 == -1) return;
-            }
-
             String name = m_EditTextName.getText().toString();
             if (name.isEmpty()) {
                 m_EditTextName.setError("Fill In A Bloody Name!!!");
@@ -112,34 +74,63 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            int sumBonus = gradeWithBonus(g1, u1) * u1 + gradeWithBonus(g2, u2) * u2 + gradeWithBonus(g3, u3) * u3 + gradeWithBonus(g4, u4) * u4;
-            int sum = g1 * u1 + g2 * u2 + g3 * u3 + g4 * u4;
-            int totalUnits = u1 + u2 + u3 + u4;
-            double average = (double) sum / totalUnits;
-            double averageWithBonus = (double) sumBonus / totalUnits;
+            int sum = 0, sumWithBonus = 0, units = 0;
+
+            for (Subject subject : m_SubjectsList) {
+                boolean includeSubject = includeSubject(subject);
+                if (includeSubject) {
+                    if (subject.getGrade() == -1 || subject.getUnits() == -1) return;
+                    if (subject.getSubject().isEmpty()) {
+                        subject.getSubjectNameEditText().setError("Fill In A Bloody Name!!!");
+                        subject.getSubjectNameEditText().requestFocus();
+                    }
+
+                    units += subject.getUnits();
+                    sum += subject.getGrade();
+                    sumWithBonus += gradeWithBonus(subject.getGrade(), subject.getUnits());
+                }
+            }
+
+            double average = (double) sum / units;
+            double averageWithBonus = (double) sumWithBonus / units;
 
             m_TextViewResult.setText("Bagroot Average: " + String.format("%.1f", average));
+
+            String[] extraSubjects = getExtraSubjects();
 
             startActivity(new Intent(this, CertificateActivity.class)
                 .putExtra("name", name)
                 .putExtra("average", average)
                 .putExtra("averageWithBonus", averageWithBonus)
-                .putExtra("subject4", subject4)
-                .putExtra("includeSubject4", includeSubject4));
+                .putExtra("extraSubjects", extraSubjects)
+            );
         });
 
         m_ButtonClear.setOnClickListener(v -> {
-            m_EditTextGrade1.setText("");
-            m_EditTextGrade2.setText("");
-            m_EditTextGrade3.setText("");
-            m_EditTextUnits1.setText("");
-            m_EditTextUnits2.setText("");
-            m_EditTextUnits3.setText("");
-            m_EditTextName.setText("");
+            for (Subject subject : m_SubjectsList) {
+                subject.clear();
+            }
 
             m_TextViewResult.setText("Average Will Appear Here");
-            m_EditTextGrade1.requestFocus();
+            m_SubjectsList.get(0).getGradeEditText().requestFocus();
         });
+    }
+
+    boolean includeSubject(Subject subject) {
+        return !subject.getSubject().isEmpty() ||
+                subject.getGradeEditText().getText().toString().isEmpty() ||
+                subject.getUnitsEditText().getText().toString().isEmpty();
+    }
+
+    String[] getExtraSubjects() {
+        List<String> extraSubjects = new ArrayList<>();
+        for (int i = 2; i < m_SubjectsList.size(); i++) {
+            Subject subject = m_SubjectsList.get(i);
+            if (includeSubject(subject)) {
+                extraSubjects.add(subject.getSubject());
+            }
+        }
+        return (String[]) extraSubjects.toArray();
     }
 
     int gradeWithBonus(int grade, int units) {
@@ -158,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable editable) {
-                int result = calculateAverage();
+                int result = calculateAverageSubjects();
                 if (result == -1) {
                     m_TextViewResult.setText("Fill In All The Bloody Fields!!!");
                 }
@@ -193,81 +184,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return sumGradeWithBonus / sumUnits;
-    }
-
-    int calculateAverage() {
-        int g1 = readNumber(m_EditTextGrade1, 0, 100);
-        if (g1 == -1) return -1;
-        int u1 = readNumber(m_EditTextUnits1, 1, 5);
-        if (u1 == -1) return -1;
-
-        int g2 = readNumber(m_EditTextGrade2, 0, 100);
-        if (g2 == -1) return -1;
-        int u2 = readNumber(m_EditTextUnits2, 1, 5);
-        if (u2 == -1) return -1;
-
-        int g3 = readNumber(m_EditTextGrade3, 0, 100);
-        if (g3 == -1) return -1;
-        int u3 = readNumber(m_EditTextUnits3, 1, 5);
-        if (u3 == -1) return -1;
-
-
-
-        int g4 = 0, u4 = 0;
-
-        String subject4 = m_EditTextSubject4.getText().toString();
-
-        boolean includeSubject4 = !subject4.isEmpty() ||
-                !m_EditTextGrade4.getText().toString().isEmpty() ||
-                !m_EditTextUnits4.getText().toString().isEmpty();
-
-        if (includeSubject4) {
-            if (subject4.isEmpty()) {
-                m_EditTextSubject4.setError("Fill In A Bloody Subject Name!!!");
-                m_EditTextSubject4.requestFocus();
-                return -1;
-            }
-
-            g4 = readNumber(m_EditTextGrade4, 0, 100);
-            if (g4 == -1) return -1;
-            u4 = readNumber(m_EditTextUnits4, 1, 5);
-            if (u4 == -1) return -1;
-        }
-
-        String name = m_EditTextName.getText().toString();
-        if (name.isEmpty()) {
-            m_EditTextName.setError("Fill In A Bloody Name!!!");
-            m_EditTextName.requestFocus();
-            return -1;
-        }
-
-        int sumBonus = gradeWithBonus(g1, u1) * u1 + gradeWithBonus(g2, u2) * u2 + gradeWithBonus(g3, u3) * u3 + gradeWithBonus(g4, u4) * u4;
-        int sum = g1 * u1 + g2 * u2 + g3 * u3 + g4 * u4;
-        int totalUnits = u1 + u2 + u3 + u4;
-        double average = (double) sum / totalUnits;
-        double averageWithBonus = (double) sumBonus / totalUnits;
-
-        m_TextViewResult.setText("Bagroot Average: " + String.format("%.1f", average));
-        return 0;
-    }
-
-    int readNumber(EditText editText, int min, int max) {
-        String text = editText.getText().toString();
-
-        if (text.isEmpty()) {
-            editText.setError("Fill In A Bloody Number!!!");
-            editText.requestFocus();
-            return -1;
-        }
-
-        int value = Integer.parseInt(text);
-
-        if (value < min || value > max) {
-            editText.setError("Has To Be Between " + min + " And " + max);
-            editText.requestFocus();
-            return -1;
-        }
-
-        return value;
     }
 }

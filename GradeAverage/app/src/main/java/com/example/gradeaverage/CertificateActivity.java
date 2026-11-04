@@ -29,13 +29,19 @@ public class CertificateActivity extends AppCompatActivity {
         String name = getIntent().getStringExtra("name");
         double average = getIntent().getDoubleExtra("average", -1.0);
         double averageWithBonus = getIntent().getDoubleExtra("averageWithBonus", -1.0);
-        boolean includeSubject4 = getIntent().getBooleanExtra("includeSubject4", false);
-        String subject4 = getIntent().getStringExtra("subject4");
+
+        String[] extraSubjects = getIntent().getStringArrayExtra("extraSubjects");
 
         String resultText = name + ": Average=" + String.format("%.1f", average) + ", Average With Bonus=" + String.format("%.1f", averageWithBonus);
-        if (includeSubject4) {
-            resultText += ", Also Includes: " + subject4;
+
+        if (extraSubjects.length != 0) {
+            String extraSubjectsString = "";
+            for (int i = 0; i < extraSubjects.length - 1; i++) {
+                extraSubjectsString += extraSubjects[i] + ", ";
+            }
+            resultText += ", Also Includes: " + extraSubjectsString;
         }
+
         m_TextViewResults.setText(resultText);
     }
 }

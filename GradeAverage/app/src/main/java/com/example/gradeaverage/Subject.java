@@ -9,10 +9,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 class Subject {
-    private EditText m_Units, m_Grade;
-    private TextView m_SubjectName;
+    protected EditText m_Units, m_Grade;
+    protected TextView m_SubjectName;
 
-    private EditText createEditText(Context context, int weight, int inputType) {
+    public EditText getUnitsEditText() {
+        return m_Units;
+    }
+    public EditText getGradeEditText() {
+        return m_Grade;
+    }
+    public TextView getSubjectNameEditText() {
+        return m_SubjectName;
+    }
+
+    protected EditText createEditText(Context context, int weight, int inputType) {
         EditText editText = new EditText(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -25,7 +35,7 @@ class Subject {
         return editText;
     }
 
-    private TextView createTextView(Context context, int weight, String text) {
+    protected TextView createTextView(Context context, int weight, String text) {
         TextView textView = new TextView(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -98,5 +108,14 @@ class Subject {
         }
 
         return units;
+    }
+
+    public void clear() {
+        m_Units.setText("");
+        m_Grade.setText("");
+
+        if (m_SubjectName instanceof EditText) {
+            m_SubjectName.setText("");
+        }
     }
 }
