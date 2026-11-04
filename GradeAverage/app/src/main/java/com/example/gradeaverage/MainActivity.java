@@ -127,7 +127,11 @@ public class MainActivity extends AppCompatActivity {
                 extraSubjects.add(subject.getSubject());
             }
         }
-        return (String[]) extraSubjects.toArray();
+        String[] extraSubjectsArr = new String[extraSubjects.size()];
+        for (int i = 0; i < extraSubjectsArr.length; i++) {
+            extraSubjectsArr[i] = extraSubjects.get(i);
+        }
+        return extraSubjectsArr;
     }
 
     int gradeWithBonus(int grade, int units) {
