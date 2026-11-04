@@ -1,6 +1,7 @@
 package com.example.gradeaverage;
 
 import android.content.Context;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -22,7 +23,7 @@ class Subject {
         return m_SubjectName;
     }
 
-    protected EditText createEditText(Context context, int weight, int inputType) {
+    protected EditText createEditText(Context context, int weight, int inputType, String hint) {
         EditText editText = new EditText(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -30,8 +31,15 @@ class Subject {
                 weight
         );
         params.gravity = Gravity.CENTER_HORIZONTAL;
+        editText.setHint(hint);
         editText.setLayoutParams(params);
         editText.setInputType(inputType);
+        return editText;
+    }
+
+    protected EditText createEditText(Context context, int weight, int inputType, String hint, int maxLength) {
+        EditText editText = createEditText(context, weight, inputType, hint);
+        editText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
         return editText;
     }
 
@@ -49,22 +57,22 @@ class Subject {
     }
 
     public Subject(Context context, String subject) {
-        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
-        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
+        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER, "Units", 1);
+        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER, "Grade", 3);
         m_SubjectName = createTextView(context, 2, subject);
     }
 
     public Subject(Context context) {
-        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
-        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER);
-        m_SubjectName = createEditText(context, 2, InputType.TYPE_CLASS_TEXT);
+        m_Units = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER, "Units", 1);
+        m_Grade = createEditText(context, 1, InputType.TYPE_CLASS_NUMBER, "Grade", 3);
+        m_SubjectName = createEditText(context, 2, InputType.TYPE_CLASS_TEXT, "Subject");
     }
 
     public void addToLayout(LinearLayout layout) {
         LinearLayout subjectLayout = new LinearLayout(layout.getContext());
         subjectLayout.addView(m_SubjectName);
-        subjectLayout.addView(m_Units);
         subjectLayout.addView(m_Grade);
+        subjectLayout.addView(m_Units);
         layout.addView(subjectLayout);
     }
 
@@ -92,7 +100,7 @@ class Subject {
     }
 
     public int getUnits() {
-        String text = m_Grade.getText().toString();
+        String text = m_Units.getText().toString();
         if (text.isEmpty()) {
             m_Units.setError("Fill In A Bloody Number!!!");
             m_Units.requestFocus();

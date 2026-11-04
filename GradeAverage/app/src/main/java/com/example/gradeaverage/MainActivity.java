@@ -2,8 +2,6 @@ package com.example.gradeaverage;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -27,13 +25,6 @@ public class MainActivity extends AppCompatActivity {
     List<Subject> m_SubjectsList = new ArrayList<>();
     LinearLayout m_SubjectsLayout;
 
-    Subject[] m_BaseSubjects = {
-            new Subject(this, "English"),
-            new Subject(this, "Maths"),
-            new Subject(this, "CS"),
-            new Subject(this)
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +37,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_SubjectsLayout = findViewById(R.id.subjectsLayout);
+
+        Subject[] m_BaseSubjects = {
+                new Subject(MainActivity.this, "Maths"),
+                new Subject(MainActivity.this, "English"),
+                new Subject(MainActivity.this, "CS"),
+                new Subject(MainActivity.this)
+        };
 
         for (Subject subject : m_BaseSubjects) {
             m_SubjectsList.add(subject);
@@ -77,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
             int sum = 0, sumWithBonus = 0, units = 0;
 
             for (Subject subject : m_SubjectsList) {
-                boolean includeSubject = includeSubject(subject);
-                if (includeSubject) {
+                if (includeSubject(subject)) {
                     if (subject.getGrade() == -1 || subject.getUnits() == -1) return;
                     if (subject.getSubject().isEmpty()) {
                         subject.getSubjectNameEditText().setError("Fill In A Bloody Name!!!");
@@ -141,48 +138,5 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return grade;
         }
-    }
-
-    EditText createEditText(int id)  {
-        EditText editText = findViewById(id);
-
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable editable) {
-                int result = calculateAverageSubjects();
-                if (result == -1) {
-                    m_TextViewResult.setText("Fill In All The Bloody Fields!!!");
-                }
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // do absolutely nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // do absolutely nothing
-            }
-        });
-        return editText;
-    }
-
-    int calculateAverageSubjects() {
-        int sumGradeWithBonus = 0;
-        int sumUnits = 0;
-
-        for (Subject subject : m_SubjectsList) {
-            int grade = subject.getGrade();
-            int units = subject.getUnits();
-
-            if (grade == -1 || units == -1) return -1;
-
-            sumGradeWithBonus += gradeWithBonus(grade, units);
-
-            sumUnits += units;
-        }
-
-        return sumGradeWithBonus / sumUnits;
     }
 }
