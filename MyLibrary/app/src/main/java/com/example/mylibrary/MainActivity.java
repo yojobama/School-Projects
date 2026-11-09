@@ -26,7 +26,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     FirebaseFirestore db;
-    EditText m_BookNameEditText, m_AuthorNameEditText, m_PageCountEditText;
+    EditText m_BookNameEditText, m_AuthorNameEditText, m_PageCountEditText, m_ReadCountEditText;
     Button m_SaveButton, m_LoadButton;
     TextView m_StatusTextView;
     String m_LoadedTitle = "";
@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         m_BookNameEditText = findViewById(R.id.etBook);
         m_AuthorNameEditText = findViewById(R.id.etAuthor);
         m_PageCountEditText = findViewById(R.id.etPages);
+        m_ReadCountEditText = findViewById(R.id.etRead);
+
         m_StatusTextView = findViewById(R.id.tvStatus);
 
         m_SaveButton.setOnClickListener(v -> {
@@ -57,10 +59,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Data Is Valid", LENGTH_LONG).show();
             else return;
 
+            String readStr = m_ReadCountEditText.getText().toString();
+            if (readStr.isEmpty() || Integer.parseInt(readStr) > Integer.parseInt(m_PageCountEditText.getText().toString()) || Integer.parseInt(readStr) < 0)
+                return;
+
             Map<String, Object> book = new HashMap<>();
             book.put("title", m_BookNameEditText.getText().toString());
             book.put("author", m_AuthorNameEditText.getText().toString());
             book.put("pages", Integer.parseInt(m_PageCountEditText.getText().toString()));
+            book.put("pagesRead", Integer.parseInt(readStr));
 
             m_StatusTextView.setText("שומר...");
 
@@ -102,6 +109,15 @@ public class MainActivity extends AppCompatActivity {
                                 m_PageCountEditText.setText("");
                             }
                             m_StatusTextView.setText("נטען מהענן");
+
+                            Long read = doc.getLong("pagesRead");
+                            if (read != null) {
+                                m_ReadCountEditText.setText(String.valueOf(read));
+                                int percent = (int) ((double) read / pages * 100);
+                                m_StatusTextView.setText("read " + percent + "% of the book");
+                            } else {
+                                m_ReadCountEditText.setText("");
+                            }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
