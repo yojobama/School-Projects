@@ -3,6 +3,8 @@ package com.example.mylibrary;
 import static android.widget.Toast.LENGTH_LONG;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     EditText m_BookNameEditText, m_AuthorNameEditText, m_PageCountEditText, m_ReadCountEditText;
     Button m_SaveButton, m_LoadButton;
     TextView m_StatusTextView;
-    String m_LoadedTitle = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,77 +56,56 @@ public class MainActivity extends AppCompatActivity {
         m_StatusTextView = findViewById(R.id.tvStatus);
 
         m_SaveButton.setOnClickListener(v -> {
-            if (checkEditTextEmpty(m_BookNameEditText) && checkEditTextEmpty(m_AuthorNameEditText) && checkEditTextEmpty(m_PageCountEditText))
+
+            if (checkEditTextEmpty(m_BookNameEditText) && checkEditTextEmpty(m_AuthorNameEditText) && checkEditTextEmpty(m_PageCountEditText)) {
+                String readStr = m_ReadCountEditText.getText().toString();
+                if (readStr.isEmpty() || Integer.parseInt(readStr) > Integer.parseInt(m_PageCountEditText.getText().toString()) || Integer.parseInt(readStr) < 0) {
+                    m_ReadCountEditText.setError("You Wee Idiot!!!");
+                    return;
+                }
                 Toast.makeText(this, "Data Is Valid", LENGTH_LONG).show();
+            }
             else return;
 
-            String readStr = m_ReadCountEditText.getText().toString();
-            if (readStr.isEmpty() || Integer.parseInt(readStr) > Integer.parseInt(m_PageCountEditText.getText().toString()) || Integer.parseInt(readStr) < 0)
-                return;
-
-            Map<String, Object> book = new HashMap<>();
-            book.put("title", m_BookNameEditText.getText().toString());
-            book.put("author", m_AuthorNameEditText.getText().toString());
-            book.put("pages", Integer.parseInt(m_PageCountEditText.getText().toString()));
-            book.put("pagesRead", Integer.parseInt(readStr));
+            Book book = new Book(m_BookNameEditText.getText().toString(),
+                    m_AuthorNameEditText.getText().toString(),
+                    Integer.parseInt(m_PageCountEditText.getText().toString()),
+                    Integer.parseInt(m_ReadCountEditText.getText().toString()));
 
             m_StatusTextView.setText("שומר...");
 
             db.collection("books").document("current").set(book)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            m_StatusTextView.setText("נשמר בענן");
-                            Toast.makeText(MainActivity.this, "הספר נשמר", Toast.LENGTH_SHORT).show();
-                        }
+                    .addOnSuccessListener(unused -> {
+                        m_StatusTextView.setText("נשמר בענן");
+                        Toast.makeText(MainActivity.this, "הספר נשמר", Toast.LENGTH_SHORT).show();
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            m_StatusTextView.setText("השמירה נכשלה: " + e.getMessage());
-                        }
-                    });
+                    .addOnFailureListener(e -> m_StatusTextView.setText("השמירה נכשלה: " + e.getMessage()));
         });
 
         m_LoadButton.setOnClickListener(v -> {
             m_StatusTextView.setText("טוען...");
 
             db.collection("books").document("current").get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot doc) {
-                            if (!doc.exists()) {
-                                m_StatusTextView.setText("עוד אין ספר שמור");
-                                return;
-                            }
-
-                            m_BookNameEditText.setText(doc.getString("title"));
-                            m_AuthorNameEditText.setText(doc.getString("author"));
-
-                            Long pages = doc.getLong("pages");
-                            if (pages != null) {
-                                m_PageCountEditText.setText(String.valueOf(pages));
-                            } else {
-                                m_PageCountEditText.setText("");
-                            }
-                            m_StatusTextView.setText("נטען מהענן");
-
-                            Long read = doc.getLong("pagesRead");
-                            if (read != null) {
-                                m_ReadCountEditText.setText(String.valueOf(read));
-                                int percent = (int) ((double) read / pages * 100);
-                                m_StatusTextView.setText("read " + percent + "% of the book");
-                            } else {
-                                m_ReadCountEditText.setText("");
-                            }
+                    .addOnSuccessListener(doc -> {
+                        if (!doc.exists()) {
+                            m_StatusTextView.setText("עוד אין ספר שמור");
+                            return;
                         }
+
+                        Book book = doc.toObject(Book.class);
+
+                        m_BookNameEditText.setText(book.getTitle());
+                        m_AuthorNameEditText.setText(book.getAuthor());
+
+                        m_PageCountEditText.setText(String.valueOf(book.getPages()));
+
+                        m_StatusTextView.setText("נטען מהענן");
+
+                        m_ReadCountEditText.setText(String.valueOf(book.getPagesRead()));
+                        int percent = (int) ((double) book.getPagesRead() / book.getPages() * 100);
+                        m_StatusTextView.setText("read " + percent + "% of the book");
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            m_StatusTextView.setText("הטעינה נכשלה: " + e.getMessage());
-                        }
-                    });
+                    .addOnFailureListener(e -> m_StatusTextView.setText("הטעינה נכשלה: " + e.getMessage()));
         });
     }
 
