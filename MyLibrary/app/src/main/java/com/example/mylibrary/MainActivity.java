@@ -1,16 +1,20 @@
 package com.example.mylibrary;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseFirestore db;
     EditText m_BookNameEditText, m_AuthorNameEditText, m_PageCountEditText, m_ReadCountEditText;
-    Button m_SaveButton, m_LoadButton;
+    Button m_SaveButton, m_LoadButton, m_DeleteButton;
     TextView m_StatusTextView;
 
     @Override
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         m_SaveButton = findViewById(R.id.btnSave);
         m_LoadButton = findViewById(R.id.btnLoad);
+        m_DeleteButton = findViewById(R.id.btnDelete);
 
         m_BookNameEditText = findViewById(R.id.etBook);
         m_AuthorNameEditText = findViewById(R.id.etAuthor);
@@ -56,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         m_StatusTextView = findViewById(R.id.tvStatus);
 
         m_SaveButton.setOnClickListener(v -> {
-
             if (checkEditTextEmpty(m_BookNameEditText) && checkEditTextEmpty(m_AuthorNameEditText) && checkEditTextEmpty(m_PageCountEditText)) {
                 String readStr = m_ReadCountEditText.getText().toString();
                 if (readStr.isEmpty() || Integer.parseInt(readStr) > Integer.parseInt(m_PageCountEditText.getText().toString()) || Integer.parseInt(readStr) < 0) {
@@ -77,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             db.collection("books").document("current").set(book)
                     .addOnSuccessListener(unused -> {
                         m_StatusTextView.setText("נשמר בענן");
-                        Toast.makeText(MainActivity.this, "הספר נשמר", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "הספר נשמר", LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> m_StatusTextView.setText("השמירה נכשלה: " + e.getMessage()));
         });
@@ -106,6 +110,34 @@ public class MainActivity extends AppCompatActivity {
                         m_StatusTextView.setText("read " + percent + "% of the book");
                     })
                     .addOnFailureListener(e -> m_StatusTextView.setText("הטעינה נכשלה: " + e.getMessage()));
+        });
+
+        m_DeleteButton.setOnClickListener(v -> {
+            Log.d("DELETE_BUTTON", "delete button was called");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("Are You Sure You Wish To Delete All The Data?").setTitle("Confirmation");
+            Log.d("DELETE_BUTTON", "Alert Dialog message and title were set");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                db.collection("books").document("current").delete()
+                        .addOnSuccessListener(doc -> {
+                            m_BookNameEditText.setText("");
+                            m_AuthorNameEditText.setText("");
+                            m_PageCountEditText.setText("");
+                            m_ReadCountEditText.setText("");
+
+                            m_StatusTextView.setText("All Data Was Succesfuly Deleted!");
+                        }).addOnFailureListener(exception -> {
+                            m_StatusTextView.setText("Data Deletion Failed! " + exception.getMessage());
+                            Log.wtf("Error Deleting DB", exception);
+                        });
+            });
+            Log.d("DELETE_BUTTON", "Alert Dialog positive button was set");
+            builder.setNegativeButton("No", (dialog, which) -> {
+            });
+            Log.d("DELETE_BUTTON", "Alert Dialog negative button set");
+            builder.show();
+            Log.d("DELETE_BUTTON", "Alert Dialog was created");
         });
     }
 
