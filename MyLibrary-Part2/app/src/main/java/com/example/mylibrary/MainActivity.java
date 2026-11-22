@@ -87,29 +87,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_LoadButton.setOnClickListener(v -> {
-            m_StatusTextView.setText("טוען...");
-
-            db.collection("books").document("current").get()
-                    .addOnSuccessListener(doc -> {
-                        if (!doc.exists()) {
-                            m_StatusTextView.setText("עוד אין ספר שמור");
-                            return;
-                        }
-
-                        Book book = doc.toObject(Book.class);
-
-                        m_BookNameEditText.setText(book.getTitle());
-                        m_AuthorNameEditText.setText(book.getAuthor());
-
-                        m_PageCountEditText.setText(String.valueOf(book.getPages()));
-
-                        m_StatusTextView.setText("נטען מהענן");
-
-                        m_ReadCountEditText.setText(String.valueOf(book.getPagesRead()));
-                        int percent = (int) ((double) book.getPagesRead() / book.getPages() * 100);
-                        m_StatusTextView.setText("read " + percent + "% of the book");
-                    })
-                    .addOnFailureListener(e -> m_StatusTextView.setText("הטעינה נכשלה: " + e.getMessage()));
+            loadBook();
         });
 
         m_DeleteButton.setOnClickListener(v -> {
@@ -139,6 +117,35 @@ public class MainActivity extends AppCompatActivity {
             builder.show();
             Log.d("DELETE_BUTTON", "Alert Dialog was created");
         });
+
+        loadBook();
+    }
+
+    void loadBook() {
+        m_StatusTextView.setText("טוען...");
+
+        db.collection("books").document("current").get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        m_StatusTextView.setText("עוד אין ספר שמור");
+                        return;
+                    }
+
+                    Book book = doc.toObject(Book.class);
+
+                    m_BookNameEditText.setText(book.getTitle());
+                    m_AuthorNameEditText.setText(book.getAuthor());
+
+                    m_PageCountEditText.setText(String.valueOf(book.getPages()));
+
+                    m_StatusTextView.setText("נטען מהענן");
+
+                    m_ReadCountEditText.setText(String.valueOf(book.getPagesRead()));
+                    int percent = (int) ((double) book.getPagesRead() / book.getPages() * 100);
+                    m_StatusTextView.setText("read " + percent + "% of the book");
+                })
+                .addOnFailureListener(e -> m_StatusTextView.setText("הטעינה נכשלה: " + e.getMessage()));
+
     }
 
     boolean checkEditTextEmpty(EditText editText) {
