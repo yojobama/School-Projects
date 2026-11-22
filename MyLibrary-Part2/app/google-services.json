@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "567927639713",
+    "project_id": "mylibrary-john",
+    "storage_bucket": "mylibrary-john.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:567927639713:android:f74614c425046e366beae0",
+        "android_client_info": {
+          "package_name": "com.example.mylibrary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmRQPSg5NfEOL3zW4RobpRmdLFvqL-NnM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
